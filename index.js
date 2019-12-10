@@ -44,6 +44,7 @@ wsServer.on('request', function(request) {
   const connection = request.accept(null, request.origin);
   clients[userID] = connection;
   console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
+
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
       const dataFromClient = JSON.parse(message.utf8Data);
@@ -59,6 +60,7 @@ wsServer.on('request', function(request) {
       sendMessage(JSON.stringify(json));
     }
   });
+
   // user disconnected
   connection.on('close', function(connection) {
     console.log((new Date()) + " Peer " + userID + " disconnected.");
