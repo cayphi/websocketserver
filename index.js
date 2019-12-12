@@ -16,7 +16,7 @@ const server = http.createServer(function(req, res){
 
   const { headers, method, requestURL } = req;
   let body = [];
-  request.on('error', (err) => {
+  req.on('error', (err) => {
     console.error(err);
   }).on('data', (chunk) => {
     body.push(chunk);
