@@ -39,6 +39,8 @@ const server = http.createServer(function(req, res){
     console.log("received device parameter: " + par.device);
     console.log("received status parameter: " + par.status);
 
+    sendMessage(par)
+
     res.on('error', (err) => {
       console.error(err);
     });
