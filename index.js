@@ -75,7 +75,7 @@ const getUniqueID = () => {
 };
 
 // I'm maintaining arduino connection here
-const arduinoClient = {};
+let arduinoClient = {};
 
 //I'm maintaining arduino data here
 let arduinoData = null;
