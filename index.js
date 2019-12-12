@@ -3,8 +3,18 @@ console.log('Listening port: ' + webSocketsServerPort);
 
 const webSocketServer = require('websocket').server;
 const http = require('http');
+const url = require('url');
+
 // Spinning the http server and the websocket server.
-const server = http.createServer();
+const server = http.createServer(function(req, res){
+  res.writeHead(200, {'Content-Type' : 'text/html'})
+  res.write('Hello World!')
+  res.end();
+
+  const q = url.parse(req.url, true).query;
+  console.log('received url: ' + q.toString());
+
+});
 server.listen(webSocketsServerPort);
 const wsServer = new webSocketServer({
   httpServer: server
