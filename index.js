@@ -75,10 +75,10 @@ const getUniqueID = () => {
 };
 
 // I'm maintaining arduino connection here
-const arduinoClient;
+const arduinoClient = {};
 
 //I'm maintaining arduino data here
-let arduinoData;
+let arduinoData = null;
 
 const sendMessage = (json) => {
   // We are sending commands to arduino the client
