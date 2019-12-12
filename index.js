@@ -26,7 +26,7 @@ const server = http.createServer(function(req, res){
     // do whatever we need to in order to respond to this request.
   });
 
-  console.log('received body: ' + body);
+  console.log('received body: ' + body[0]);
 
 });
 server.listen(webSocketsServerPort);
