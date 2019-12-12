@@ -33,7 +33,7 @@ const server = http.createServer(function(req, res){
     console.log('received body: ' + body);
 
     const requestBody = JSON.parse(body);
-    const par = requestBody.result.parameters;
+    const par = requestBody.queryResult.parameters;
 
     console.log("received command parameter: " + par.command);
     console.log("received device parameter: " + par.device);
