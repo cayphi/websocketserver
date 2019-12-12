@@ -23,19 +23,36 @@ const server = http.createServer(function(req, res){
     body = Buffer.concat(body).toString();
     // At this point, we have the headers, method, url and body, and can now
     // do whatever we need to in order to respond to this request.
+
+    console.log("received header: " + headers['Content-type'])
+    console.log("received header: " + headers['user-agent'])
+    console.log("received method: " + method)
+    console.log("received url: " + url)
+
+    console.log('received body: ' + body.toString());
+    console.log('received body: ' + body);
+
+    res.on('error', (err) => {
+      console.error(err);
   });
 
-  console.log("received header: " + headers['Content-type'])
-  console.log("received header: " + headers['user-agent'])
-  console.log("received method: " + method)
-  console.log("received url: " + url)
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  // Note: the 2 lines above could be replaced with this next one:
+  // response.writeHead(200, {'Content-Type': 'application/json'})
 
-  console.log('received body: ' + body.toString());
-  console.log('received body: ' + body);
+  const responseBody = { headers, method, url, body };
 
+  res.write(JSON.stringify(responseBody));
+  res.end();
+  // Note: the 2 lines above could be replaced with this next one:
+  // response.end(JSON.stringify(responseBody))
+
+  /*
   res.writeHead(200, {'Content-Type' : 'text/html'})
   res.write('Hello World!')
   res.end();
+  */
 
 });
 server.listen(webSocketsServerPort);
