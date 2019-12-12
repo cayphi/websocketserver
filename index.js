@@ -38,7 +38,7 @@ const server = http.createServer(function(req, res){
     console.log("received state parameter: " + par.state);
     console.log("received location parameter: " + par.location);
     console.log("received device parameter: " + par.device);
-    
+
     res.on('error', (err) => {
       console.error(err);
     });
@@ -74,62 +74,42 @@ const getUniqueID = () => {
   return s4() + s4() + '-' + s4();
 };
 
-// I'm maintaining all active connections in this object
-const clients = {};
-// I'm maintaining all active users in this object
-const users = {};
-// The current editor content is maintained here.
-let editorContent = null;
-// User activity history.
-let userActivity = [];
-
-
+// I'm maintaining arduino connection here
+const client;
 
 const sendMessage = (json) => {
-  // We are sending the current data to all connected clients
-  Object.keys(clients).map((client) => {
-    clients[client].sendUTF(json);
-  });
+  // We are sending commands to arduino the client
+    client.sendUTF(json);
 }
 
 const typesDef = {
-  USER_EVENT: "userevent",
-  CONTENT_CHANGE: "contentchange"
+  CLIENT_KEEP_ALIVE: "keepalive",
+  CLIENT_FEEDBACK: "feedback"
 }
 
 wsServer.on('request', function(request) {
-  var userID = getUniqueID();
   console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
   // You can rewrite this part of the code to accept only the requests from allowed origin
   const connection = request.accept(null, request.origin);
-  clients[userID] = connection;
-  console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
+  client = connection;
+  console.log('connected: ');
 
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
       console.log('data: ' + message.utf8Data);
       const dataFromClient = JSON.parse(message.utf8Data);
       const json = { type: dataFromClient.type };
-      if (dataFromClient.type === typesDef.USER_EVENT) {
-        users[userID] = dataFromClient;
-        userActivity.push(`${dataFromClient.username} joined to edit the document`);
-        json.data = { users, userActivity };
-      } else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
-        editorContent = dataFromClient.content;
-        json.data = { editorContent, userActivity };
+      if (dataFromClient.type === typesDef.CLIENT_KEEP_ALIVE) {
+        console.log('received a keepalive message: ' + dataFromClient.content)
+      } else if (dataFromClient.type === typesDef.CLIENT_FEEDBACK) {
+        console.log('received a feedback message from the arduino client: ' + dataFromClient.content)
       }
-      sendMessage(JSON.stringify(json));
     }
   });
 
   // user disconnected
   connection.on('close', function(connection) {
-    console.log((new Date()) + " Peer " + userID + " disconnected.");
-    const json = { type: typesDef.USER_EVENT };
-    userActivity.push(`${users[userID].username} left the document`);
-    json.data = { users, userActivity };
-    delete clients[userID];
-    delete users[userID];
-    sendMessage(JSON.stringify(json));
+    console.log((new Date()) + " the arduino client disconnected.");
+    delete client;
   });
 });
