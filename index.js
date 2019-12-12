@@ -7,9 +7,7 @@ const url = require('url');
 
 // Spinning the http server and the websocket server.
 const server = http.createServer(function(req, res){
-  res.writeHead(200, {'Content-Type' : 'text/html'})
-  res.write('Hello World!')
-  res.end();
+
 
   const q = url.parse(req.url, true).query;
   console.log('received url: ' + req.url);
@@ -26,7 +24,11 @@ const server = http.createServer(function(req, res){
     // do whatever we need to in order to respond to this request.
   });
 
-  console.log('received body: ' + body[0]);
+  console.log('received body: ' + body.toString());
+
+  res.writeHead(200, {'Content-Type' : 'text/html'})
+  res.write('Hello World!')
+  res.end();
 
 });
 server.listen(webSocketsServerPort);
