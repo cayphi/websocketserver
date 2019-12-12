@@ -24,6 +24,10 @@ const server = http.createServer(function(req, res){
     // do whatever we need to in order to respond to this request.
   });
 
+  console.log("received header: " + headers)
+  console.log("received method: " + method)
+  console.log("received url: " + requestURL)
+
   console.log('received body: ' + body.toString());
 
   res.writeHead(200, {'Content-Type' : 'text/html'})
