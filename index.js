@@ -84,7 +84,7 @@ let arduinoData = null;
 
 const sendMessage = (json) => {
   // We are sending commands to arduino the client
-    arduinoClient.sendUTF(json);
+    arduinoClient.sendUTF(JSON.stringify(json));
 }
 
 const updateData = (json) => {
