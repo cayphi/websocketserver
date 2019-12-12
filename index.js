@@ -14,7 +14,7 @@ const server = http.createServer(function(req, res){
   const q = url.parse(req.url, true).query;
   console.log('received url: ' + req.url);
 
-  const { headers, method, url } = req;
+  const { headers, method, requestURL } = req;
   let body = [];
   request.on('error', (err) => {
     console.error(err);
