@@ -35,9 +35,9 @@ const server = http.createServer(function(req, res){
     const requestBody = JSON.parse(body);
     const par = requestBody.result.parameters;
 
-    console.log("received state parameter: " + par.state);
-    console.log("received location parameter: " + par.location);
+    console.log("received command parameter: " + par.command);
     console.log("received device parameter: " + par.device);
+    console.log("received status parameter: " + par.status);
 
     res.on('error', (err) => {
       console.error(err);
@@ -75,11 +75,18 @@ const getUniqueID = () => {
 };
 
 // I'm maintaining arduino connection here
-const client;
+const arduinoClient;
+
+//I'm maintaining arduino data here
+let arduinoData;
 
 const sendMessage = (json) => {
   // We are sending commands to arduino the client
-    client.sendUTF(json);
+    arduinoClient.sendUTF(json);
+}
+
+const updateData = (json) => {
+  arduinoData = json.content;
 }
 
 const typesDef = {
@@ -91,7 +98,7 @@ wsServer.on('request', function(request) {
   console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
   // You can rewrite this part of the code to accept only the requests from allowed origin
   const connection = request.accept(null, request.origin);
-  client = connection;
+  arduinoClient = connection;
   console.log('connected: ');
 
   connection.on('message', function(message) {
@@ -102,9 +109,11 @@ wsServer.on('request', function(request) {
       if (dataFromClient.type === typesDef.CLIENT_KEEP_ALIVE) {
         console.log('received a keepalive message: ' + dataFromClient.content)
       } else if (dataFromClient.type === typesDef.CLIENT_FEEDBACK) {
+        updateData(dataFromClient);
         console.log('received a feedback message from the arduino client: ' + dataFromClient.content)
       }
     }
+
   });
 
   // user disconnected
