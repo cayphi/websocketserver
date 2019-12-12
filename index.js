@@ -14,6 +14,20 @@ const server = http.createServer(function(req, res){
   const q = url.parse(req.url, true).query;
   console.log('received url: ' + req.url);
 
+  const { headers, method, url } = req;
+  let body = [];
+  request.on('error', (err) => {
+    console.error(err);
+  }).on('data', (chunk) => {
+    body.push(chunk);
+  }).on('end', () => {
+    body = Buffer.concat(body).toString();
+    // At this point, we have the headers, method, url and body, and can now
+    // do whatever we need to in order to respond to this request.
+  });
+
+  console.log('received body: ' + body);
+
 });
 server.listen(webSocketsServerPort);
 const wsServer = new webSocketServer({
