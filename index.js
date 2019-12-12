@@ -34,25 +34,26 @@ const server = http.createServer(function(req, res){
 
     res.on('error', (err) => {
       console.error(err);
-  });
+    });
 
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  // Note: the 2 lines above could be replaced with this next one:
-  // response.writeHead(200, {'Content-Type': 'application/json'})
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    // Note: the 2 lines above could be replaced with this next one:
+    // response.writeHead(200, {'Content-Type': 'application/json'})
 
-  const responseBody = { headers, method, url, body };
+    const responseBody = { headers, method, url, body };
 
-  res.write(JSON.stringify(responseBody));
-  res.end();
-  // Note: the 2 lines above could be replaced with this next one:
-  // response.end(JSON.stringify(responseBody))
+    res.write(JSON.stringify(responseBody));
+    res.end();
+    // Note: the 2 lines above could be replaced with this next one:
+    // response.end(JSON.stringify(responseBody))
 
-  /*
-  res.writeHead(200, {'Content-Type' : 'text/html'})
-  res.write('Hello World!')
-  res.end();
-  */
+    /*
+    res.writeHead(200, {'Content-Type' : 'text/html'})
+    res.write('Hello World!')
+    res.end();
+    */
+  })
 
 });
 server.listen(webSocketsServerPort);
