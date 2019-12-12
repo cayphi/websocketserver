@@ -32,6 +32,13 @@ const server = http.createServer(function(req, res){
     //console.log('received body: ' + body.toString());
     console.log('received body: ' + body);
 
+    const requestBody = JSON.parse(body);
+    const par = requestBody.result.parameters;
+
+    console.log("received state parameter: " + par.state);
+    console.log("received location parameter: " + par.location);
+    console.log("received device parameter: " + par.device);
+    
     res.on('error', (err) => {
       console.error(err);
     });
