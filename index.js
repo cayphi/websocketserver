@@ -27,7 +27,7 @@ const server = http.createServer(function(req, res){
 
   console.log("received header: " + headers["Content-type"])
   console.log("received method: " + method)
-  console.log("received url: " + requestURL)
+  console.log("received url: " + url)
 
   console.log('received body: ' + body.toString());
 
