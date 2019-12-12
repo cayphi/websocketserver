@@ -12,7 +12,7 @@ const server = http.createServer(function(req, res){
   res.end();
 
   const q = url.parse(req.url, true).query;
-  console.log('received url: ' + q);
+  console.log('received url: ' + req.url);
 
 });
 server.listen(webSocketsServerPort);
