@@ -29,7 +29,7 @@ const server = http.createServer(function(req, res){
     console.log("received method: " + method)
     console.log("received url: " + url)
 
-    console.log('received body: ' + body.toString());
+    //console.log('received body: ' + body.toString());
     console.log('received body: ' + body);
 
     res.on('error', (err) => {
@@ -100,6 +100,7 @@ wsServer.on('request', function(request) {
 
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
+      console.log('data: ' + message.utf8Data);
       const dataFromClient = JSON.parse(message.utf8Data);
       const json = { type: dataFromClient.type };
       if (dataFromClient.type === typesDef.USER_EVENT) {
