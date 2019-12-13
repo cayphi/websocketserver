@@ -105,9 +105,9 @@ wsServer.on('request', function(request) {
   arduinoClient = connection;
 
   //const q = url.parse(req.url, true).query;
-  const urlObj = url.parse(request.url, true)
-  console.log('received url: ' + request.url);
-  console.log('connected with path: ' + urlObj.path);
+  //const urlObj = url.parse(request.resource, true)
+  console.log('received url: ' + request.resource);
+  console.log('connected with path: ' + request.resourceURL.path);
 
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
