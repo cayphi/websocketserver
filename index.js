@@ -103,7 +103,11 @@ wsServer.on('request', function(request) {
   // You can rewrite this part of the code to accept only the requests from allowed origin
   const connection = request.accept(null, request.origin);
   arduinoClient = connection;
-  console.log('connected with path: ' + request.path);
+
+  //const q = url.parse(req.url, true).query;
+  const urlObj = url.parse(request.url, true)
+  console.log('received url: ' + request.url);
+  console.log('connected with path: ' + urlObj.path);
 
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
