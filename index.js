@@ -3,17 +3,19 @@ console.log('Listening port: ' + webSocketsServerPort);
 
 const webSocketServer = require('websocket').server;
 const http = require('http');
-//const url = require('url');
+const url = require('url');
 
 // Spinning the http server and the websocket server.
 const server = http.createServer(function(req, res){
 
 
-/*
-  const q = url.parse(req.url, true).query;
+  //const q = url.parse(req.url, true).query;
+  const urlObj = url.parse(req.url, true)
+
   console.log('received url: ' + req.url);
-*/
-  const { headers, method, url } = req;
+
+  //const { headers, method, url } = req;
+  const { headers, method } = req;
   let body = [];
   req.on('error', (err) => {
     console.error(err);
@@ -27,7 +29,7 @@ const server = http.createServer(function(req, res){
     console.log("received header: " + headers['Content-type'])
     console.log("received header: " + headers['user-agent'])
     console.log("received method: " + method)
-    console.log("received url: " + url)
+    console.log("received url: " + urlObj.toString())
 
     //console.log('received body: ' + body.toString());
     console.log('received body: ' + body);
