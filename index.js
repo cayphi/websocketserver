@@ -38,7 +38,7 @@ const server = http.createServer(function(req, res){
     console.log("received state parameter: " + par.state);
     console.log("received location parameter: " + par.location);
     console.log("received device parameter: " + par.device);
-    
+
     res.on('error', (err) => {
       console.error(err);
     });
@@ -79,7 +79,7 @@ const clients = {};
 // I'm maintaining all active users in this object
 const users = {};
 // The current editor content is maintained here.
-let editorContent = null;
+let instParameters = {};
 // User activity history.
 let userActivity = [];
 
@@ -93,8 +93,10 @@ const sendMessage = (json) => {
 }
 
 const typesDef = {
-  USER_EVENT: "userevent",
-  CONTENT_CHANGE: "contentchange"
+  INSTRUCTION: "instruction",
+  FEEDBACK: "feedback",
+  INSTRUCTOR: "instructor",
+  DEVICE: "device"
 }
 
 wsServer.on('request', function(request) {
@@ -102,21 +104,26 @@ wsServer.on('request', function(request) {
   console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
   // You can rewrite this part of the code to accept only the requests from allowed origin
   const connection = request.accept(null, request.origin);
-  clients[userID] = connection;
-  console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
+  if (request.resourceURL.path === '/ws') {
+    clients[userID] = {'connection': connection, 'type': typesDef.DEVICE};
+    console.log('A ' + typesDef.DEVICE + ' connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
+  }else if (request.resourceURL.path === '/mb') {
+    clients[userID] = {'connection': connection, 'type': typesDef.INSTRUCTOR};
+    console.log('An ' + typesDef.INSTRUCTOR + ' connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
+  }
 
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
       console.log('data: ' + message.utf8Data);
       const dataFromClient = JSON.parse(message.utf8Data);
       const json = { type: dataFromClient.type };
-      if (dataFromClient.type === typesDef.USER_EVENT) {
+      if (dataFromClient.type === typesDef.INSTRUCTION) {
         users[userID] = dataFromClient;
-        userActivity.push(`${dataFromClient.username} joined to edit the document`);
+        userActivity.push(`${dataFromClient.username} sent an instruction`);
         json.data = { users, userActivity };
       } else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
-        editorContent = dataFromClient.content;
-        json.data = { editorContent, userActivity };
+        instParameters = dataFromClient.parameters;
+        json.data = { instParameters, userActivity };
       }
       sendMessage(JSON.stringify(json));
     }
