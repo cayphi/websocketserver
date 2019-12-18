@@ -63,6 +63,7 @@ const server = http.createServer(function(req, res){
   })
 
 });
+
 server.listen(webSocketsServerPort);
 const wsServer = new webSocketServer({
   httpServer: server
@@ -96,7 +97,47 @@ const typesDef = {
   INSTRUCTION: "instruction",
   FEEDBACK: "feedback",
   INSTRUCTOR: "instructor",
-  DEVICE: "device"
+  DEVICE: "device",
+  SERVER: "server",
+  INFORMATION : 'information'
+}
+
+function processDeviceMessage(userID, dataFromClient){
+  if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
+    //this is an introduction from a device/car
+    users[userID] = dataFromClient;
+    userActivity.push(`${dataFromClient.message.messageContent} joined`);
+    json.data = {users};
+
+    //TODO: send updated available users list to all instructors
+
+  } elseif (dataFromClient.message.messageType === typesDef.FEEDBACK) {
+    //this is a feedback from a device/car
+
+    //TODO: send the feedback to the instructor
+    userActivity.push(`${dataFromClient.username} sent an instruction`);
+    json.data = { users, userActivity };
+
+
+    instParameters = dataFromClient.parameters;
+    json.data = { instParameters, userActivity };
+
+  }
+
+
+}
+
+function processInstructorMessage(userID, dataFromClient){
+  if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
+    //this is an introduction from an instructor
+    //users[userID] = dataFromClient;
+    userActivity.push(`${dataFromClient.username} sent an instruction`);
+    json.data = { users, userActivity };
+  } elseif (dataFromClient.message.messageType === typesDef.INSTRUCTION) {
+            //this is an instruction from an instructor
+            //TODO: parse the instruction and send corresponding instruction to the car
+  }
+
 }
 
 wsServer.on('request', function(request) {
@@ -105,25 +146,34 @@ wsServer.on('request', function(request) {
   // You can rewrite this part of the code to accept only the requests from allowed origin
   const connection = request.accept(null, request.origin);
   if (request.resourceURL.path === '/ws') {
-    clients[userID] = {'connection': connection, 'type': typesDef.DEVICE};
+    clients[userID] = {'connection': connection, 'deviceType': typesDef.DEVICE};
     console.log('A ' + typesDef.DEVICE + ' connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
   }else if (request.resourceURL.path === '/mb') {
-    clients[userID] = {'connection': connection, 'type': typesDef.INSTRUCTOR};
+    clients[userID] = {'connection': connection, 'deviceType': typesDef.INSTRUCTOR};
     console.log('An ' + typesDef.INSTRUCTOR + ' connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
   }
+
+  //TODO: send the assigned userID back to the new client
+  connection.send(JSON.stringify({
+    'deviceType' : typesDef.SERVER,
+    'message' : {
+      'messageType' : typesDef.INFORMATION,
+      'messageContent' : userID
+    }
+  }))
 
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
       console.log('data: ' + message.utf8Data);
       const dataFromClient = JSON.parse(message.utf8Data);
-      const json = { type: dataFromClient.type };
-      if (dataFromClient.type === typesDef.INSTRUCTION) {
-        users[userID] = dataFromClient;
-        userActivity.push(`${dataFromClient.username} sent an instruction`);
-        json.data = { users, userActivity };
-      } else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
-        instParameters = dataFromClient.parameters;
-        json.data = { instParameters, userActivity };
+      const json = { 'deviceType': dataFromClient.deviceType };
+      if (dataFromClient.deviceType === typesDef.INSTRUCTOR) {
+        //TODO: process message from an instructor
+        processInstructorMessage(userID, dataFromClient);
+      } else if (dataFromClient.deviceType === typesDef.DEVICE) {
+        //TODO: process a message from a device/car
+        processDeviceMessage(userID, dataFromClient);
+
       }
       sendMessage(JSON.stringify(json));
     }
