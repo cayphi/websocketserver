@@ -99,7 +99,8 @@ const typesDef = {
   INSTRUCTOR: "instructor",
   DEVICE: "device",
   SERVER: "server",
-  INFORMATION : 'information'
+  INFORMATION : 'information',
+  QUERY : "query"
 }
 
 function processDeviceMessage(userID, dataFromClient){
@@ -111,7 +112,7 @@ function processDeviceMessage(userID, dataFromClient){
 
     //TODO: send updated available users list to all instructors
 
-  } elseif (dataFromClient.message.messageType === typesDef.FEEDBACK) {
+  } else if (dataFromClient.message.messageType === typesDef.FEEDBACK) {
     //this is a feedback from a device/car
 
     //TODO: send the feedback to the instructor
@@ -124,8 +125,8 @@ function processDeviceMessage(userID, dataFromClient){
 
   }
 
-
 }
+
 
 function processInstructorMessage(userID, dataFromClient){
   if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
@@ -133,7 +134,7 @@ function processInstructorMessage(userID, dataFromClient){
     //users[userID] = dataFromClient;
     userActivity.push(`${dataFromClient.username} sent an instruction`);
     json.data = { users, userActivity };
-  } elseif (dataFromClient.message.messageType === typesDef.INSTRUCTION) {
+  } else if (dataFromClient.message.messageType === typesDef.INSTRUCTION) {
             //this is an instruction from an instructor
             //TODO: parse the instruction and send corresponding instruction to the car
   }
