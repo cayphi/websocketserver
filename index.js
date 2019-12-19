@@ -93,7 +93,7 @@ const sendMessage = (json) => {
   });
 }
 
-const sendAvailableDeviceList(instructorID){
+function sendAvailableDeviceList(instructorID){
   let json = {device: typesDef.SERVER}
   json['message'] = {messageType : typesDef.INFORMATION}
   json['message']['messageContent'] = Object.keys(clients).reduce((total, current) => {
@@ -175,7 +175,7 @@ wsServer.on('request', function(request) {
   var userID = getUniqueID();
   console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
   console.log('path: ' + request.resourceURL.path)
-  
+
   let connection;
   if (request.resourceURL.path === '/ws') {
     // Accept the connection from esp8266 (indicator /ws)
