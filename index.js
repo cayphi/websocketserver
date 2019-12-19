@@ -107,14 +107,15 @@ function processDeviceMessage(userID, dataFromClient){
 
     if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
       //this is an introduction from a device/car
-      clients[dataFromClient.userID]['userName'] = dataFromClient.message.messageContent
-
+      clients[userID]['userName'] = dataFromClient.message.messageContent;
+      console.log('server received an introduction from client ' + userID + ' : ' dataFromClient.message.messageContent)
       //track client actions
       users[userID] = dataFromClient;
       userActivity.push(`${dataFromClient.message.messageContent} joined`);
-      json.data = {users};
 
       //TODO: send updated available users list to all instructors
+      //json.data = {users};
+
 
     } else if (dataFromClient.message.messageType === typesDef.FEEDBACK) {
       //this is a feedback from a device/car
@@ -147,16 +148,10 @@ function processInstructorMessage(userID, dataFromClient){
 wsServer.on('request', function(request) {
   var userID = getUniqueID();
   console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
-
+  const connection
   if (request.resourceURL.path === '/ws') {
     // Accept the request from esp8266 (indicator /ws) and send back a user id
-    const connection = request.accept(null, JSON.stringify({
-      'deviceType' : typesDef.SERVER,
-      'message' : {
-        'messageType' : typesDef.INFORMATION,
-        'messageContent' : userID
-      }
-    }));
+    connection = request.accept(null, request.origin);
 
     //add a new client to memory
     clients[userID] = {'connection': connection, 'deviceType': typesDef.DEVICE};
@@ -168,6 +163,7 @@ wsServer.on('request', function(request) {
   }
 
   /*
+
   //TODO: send the assigned userID back to the new client
   connection.send(JSON.stringify({
     'deviceType' : typesDef.SERVER,
