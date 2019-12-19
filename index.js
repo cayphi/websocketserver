@@ -153,7 +153,7 @@ function processDeviceMessage(userID, dataFromClient){
       console.log('current users details at server: ' + JSON.stringify(users))
 
       //TODO: send updated available users list to all instructors
-      //json.data = {users};
+      sendAvailableDeviceList();
 
 
     } else if (dataFromClient.message.messageType === typesDef.FEEDBACK) {
