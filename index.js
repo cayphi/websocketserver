@@ -108,7 +108,7 @@ function processDeviceMessage(userID, dataFromClient){
     if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
       //this is an introduction from a device/car
       clients[userID]['userName'] = dataFromClient.message.messageContent;
-      console.log('server received an introduction from client ' + userID + ' : ' dataFromClient.message.messageContent)
+      console.log('server received an introduction from client ' + userID + ' : ' + dataFromClient.message.messageContent)
       //track client actions
       users[userID] = dataFromClient;
       userActivity.push(`${dataFromClient.message.messageContent} joined`);
