@@ -113,6 +113,7 @@ function processDeviceMessage(userID, dataFromClient){
       users[userID] = dataFromClient;
       userActivity.push(`${dataFromClient.message.messageContent} joined`);
 
+      console.log('connections stored in server: ' + JSON.stringify(clients))
       //TODO: send updated available users list to all instructors
       //json.data = {users};
 
