@@ -105,6 +105,26 @@ function sendAvailableDeviceList(instructorID){
   clients[instructorID]['connection'].sendUTF(JSON.stringify(json))
 }
 
+function sendAvailableDeviceList(){
+  let json = {deviceType: typesDef.SERVER}
+  json['message'] = {messageType : typesDef.INFORMATION}
+  json['message']['messageContent'] = Object.keys(clients).reduce((total, current) => {
+    if (clients[current].deviceType === typesDef.DEVICE) {
+      total[current] = clients[current]['userName']
+    }
+    return total
+  }, {})
+
+  //send updated device list to all instructors
+  Object.keys(clients).map((client) => {
+    if (clients[client]['deviceType'] === typesDef.INSTRUCTOR) {
+      clients[client]['connection'].sendUTF(JSON.stringify(json))
+    }
+  })
+
+}
+
+
 const typesDef = {
   INSTRUCTION: 'instruction',
   INTRODUCTION : 'introduction',
@@ -231,6 +251,18 @@ wsServer.on('request', function(request) {
   connection.on('close', function(reasonCode, description) {
     console.log((new Date()) + " Peer " + userID + " disconnected.");
     //TODO: send updated available device list to all instructors
+    if (clients[userID]['deviceType'] === typesDef.DEVICE ) {
+      delete clients[userID];
+      delete users[userID];
+      console.log ('a car has been disconnected, remaining conneciton list: ' + Object.getOwnPropertyNames(clients))
+      sendAvailableDeviceList();
+
+    } else if (clients[userID]['deviceType'] === typesDef.INSTRUCTOR){
+      delete clients[userID];
+      delete users[userID];
+      console.log ('an instructor has been disconnected, remaining conneciton list: ' + Object.getOwnPropertyNames(clients))
+    }
+
     /*
     const json = { type: typesDef.USER_EVENT };
     userActivity.push(`${users[userID].username} left the document`);
