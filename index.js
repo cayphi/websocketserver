@@ -94,7 +94,7 @@ const sendMessage = (json) => {
 }
 
 function sendAvailableDeviceList(instructorID){
-  let json = {device: typesDef.SERVER}
+  let json = {deviceType: typesDef.SERVER}
   json['message'] = {messageType : typesDef.INFORMATION}
   json['message']['messageContent'] = Object.keys(clients).reduce((total, current) => {
     if (clients[current].deviceType === typesDef.DEVICE) {
