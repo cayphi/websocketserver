@@ -148,7 +148,7 @@ function processInstructorMessage(userID, dataFromClient){
 wsServer.on('request', function(request) {
   var userID = getUniqueID();
   console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
-  const connection
+  let connection;
   if (request.resourceURL.path === '/ws') {
     // Accept the request from esp8266 (indicator /ws) and send back a user id
     connection = request.accept(null, request.origin);
