@@ -93,6 +93,18 @@ const sendMessage = (json) => {
   });
 }
 
+const sendAvailableDeviceList(instructorID){
+  let json = {device: typesDef.SERVER}
+  json['message'] = {messageType : typesDef.INFORMATION}
+  json['message']['messageContent'] = Object.keys(clients).reduce((total, current) => {
+    if (clients[current].deviceType === typesDef.DEVICE) {
+      total[current] = clients[current]['userName']
+    }
+    return total
+  }, {})
+  clients[instructorID].sendUTF(JSON.stringify(json))
+}
+
 const typesDef = {
   INSTRUCTION: 'instruction',
   INTRODUCTION : 'introduction',
@@ -116,7 +128,7 @@ function processDeviceMessage(userID, dataFromClient){
       userActivity.push(`${dataFromClient.message.messageContent} joined`);
 
       console.log('sending current clients details to client')
-      clients[userID]['connection'].sendUTF('your name has been recorded in the server: ' + clients[userID].userName);
+      clients[userID]['connection'].sendUTF('your name has been recorded on the server: ' + clients[userID].userName);
 
       console.log('current users details at server: ' + JSON.stringify(users))
 
@@ -143,8 +155,15 @@ function processInstructorMessage(userID, dataFromClient){
   if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
     //this is an introduction from an instructor
     //users[userID] = dataFromClient;
-    userActivity.push(`${dataFromClient.username} sent an instruction`);
-    json.data = { users, userActivity };
+
+    //TODO: send a list of available device to the instructor
+    sendAvailableDeviceList(userID)
+
+    //track client actions
+    users[userID] = dataFromClient;
+    userActivity.push(`${dataFromClient.message.messageContent} joined`);
+
+
   } else if (dataFromClient.message.messageType === typesDef.INSTRUCTION) {
             //this is an instruction from an instructor
             //TODO: parse the instruction and send corresponding instruction to the car
@@ -155,9 +174,11 @@ function processInstructorMessage(userID, dataFromClient){
 wsServer.on('request', function(request) {
   var userID = getUniqueID();
   console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
+  console.log('path: ' + request.resourceURL.path)
+  
   let connection;
   if (request.resourceURL.path === '/ws') {
-    // Accept the request from esp8266 (indicator /ws) and send back a user id
+    // Accept the connection from esp8266 (indicator /ws)
     connection = request.accept(null, request.origin);
 
     //add a new client to memory
@@ -165,6 +186,9 @@ wsServer.on('request', function(request) {
     console.log('A ' + typesDef.DEVICE + ' connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
 
   }else if (request.resourceURL.path === '/mb') {
+    // Accept the connection from mobile (indicator /mb)
+    connection = request.accept(null, request.origin);
+
     clients[userID] = {'connection': connection, 'deviceType': typesDef.INSTRUCTOR};
     console.log('An ' + typesDef.INSTRUCTOR + ' connected: ' + userID + ' in ' + Object.getOwnPropertyNames(clients));
   }
