@@ -155,9 +155,9 @@ function processInstructorMessage(userID, dataFromClient){
   if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
     //this is an introduction from an instructor
     //users[userID] = dataFromClient;
-
+    console.log('received an introduction from an instructor: ' + dataFromClient.message.messageContent)
     //TODO: send a list of available device to the instructor
-    sendAvailableDeviceList(userID)
+    //sendAvailableDeviceList(userID)
 
     //track client actions
     users[userID] = dataFromClient;
@@ -227,13 +227,16 @@ wsServer.on('request', function(request) {
   });
 
   // user disconnected
-  connection.on('close', function(connection) {
+  connection.on('close', function(reasonCode, description) {
     console.log((new Date()) + " Peer " + userID + " disconnected.");
+    //TODO: send updated available device list to all instructors
+    /*
     const json = { type: typesDef.USER_EVENT };
     userActivity.push(`${users[userID].username} left the document`);
     json.data = { users, userActivity };
     delete clients[userID];
     delete users[userID];
     sendMessage(JSON.stringify(json));
+    */
   });
 });
