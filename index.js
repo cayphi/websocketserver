@@ -95,6 +95,7 @@ const sendMessage = (json) => {
 
 const typesDef = {
   INSTRUCTION: 'instruction',
+  INTRODUCTION : 'introduction',
   FEEDBACK: 'feedback',
   INSTRUCTOR: 'instructor',
   DEVICE: 'device',
