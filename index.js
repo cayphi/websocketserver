@@ -116,9 +116,9 @@ function processDeviceMessage(userID, dataFromClient){
       userActivity.push(`${dataFromClient.message.messageContent} joined`);
 
       console.log('sending current clients details to client')
-      clients[userID]['your name has been recorded in the server: '].sendUTF(JSON.stringify(clients.userID.userName));
+      clients[userID]['connection'].sendUTF('your name has been recorded in the server: ' + clients[userID].userName);
 
-      console.log('users details: ' + JSON.stringify(users))
+      console.log('current users details at server: ' + JSON.stringify(users))
 
       //TODO: send updated available users list to all instructors
       //json.data = {users};
