@@ -115,7 +115,7 @@ function processDeviceMessage(userID, dataFromClient){
       userActivity.push(`${dataFromClient.message.messageContent} joined`);
 
       console.log('sending current clients details to client')
-      clients[userID][connection].sendUTF(JSON.stringify(clients));
+      clients[userID]['connection'].sendUTF(JSON.stringify(clients));
       //TODO: send updated available users list to all instructors
       //json.data = {users};
 
