@@ -89,7 +89,7 @@ let userActivity = [];
 const sendMessage = (json) => {
   // We are sending the current data to all connected clients
   Object.keys(clients).map((client) => {
-    clients[client].sendUTF(json);
+    clients[client][connection].sendUTF(json);
   });
 }
 
@@ -187,7 +187,7 @@ wsServer.on('request', function(request) {
         processDeviceMessage(userID, dataFromClient);
 
       }
-      sendMessage(JSON.stringify(json));
+      //sendMessage(JSON.stringify(json));
     }
   });
 
