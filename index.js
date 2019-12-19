@@ -182,7 +182,7 @@ wsServer.on('request', function(request) {
       const json = { 'deviceType': dataFromClient.deviceType };
       console.log('device Type: ' + dataFromClient.deviceType);
       console.log('type of dataFromClient.deviceType: ' + typeof(dataFromClient.deviceType));
-      console.log('type of typesDef.DEVICE: ' + typeof(typesDef.DEVICE);
+      console.log('type of typesDef.DEVICE: ' + typeof(typesDef.DEVICE));
 
       if (dataFromClient.deviceType === typesDef.INSTRUCTOR) {
         //TODO: process message from an instructor
