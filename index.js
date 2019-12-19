@@ -94,13 +94,13 @@ const sendMessage = (json) => {
 }
 
 const typesDef = {
-  INSTRUCTION: "instruction",
-  FEEDBACK: "feedback",
-  INSTRUCTOR: "instructor",
-  DEVICE: "device",
-  SERVER: "server",
+  INSTRUCTION: 'instruction',
+  FEEDBACK: 'feedback',
+  INSTRUCTOR: 'instructor',
+  DEVICE: 'device',
+  SERVER: 'server',
   INFORMATION : 'information',
-  QUERY : "query"
+  QUERY : 'query'
 }
 
 function processDeviceMessage(userID, dataFromClient){
@@ -180,6 +180,8 @@ wsServer.on('request', function(request) {
       console.log('data: ' + message.utf8Data);
       const dataFromClient = JSON.parse(message.utf8Data);
       const json = { 'deviceType': dataFromClient.deviceType };
+      console.log('device Type: ' + dataFromClient.deviceType);
+
       if (dataFromClient.deviceType === typesDef.INSTRUCTOR) {
         //TODO: process message from an instructor
         processInstructorMessage(userID, dataFromClient);
