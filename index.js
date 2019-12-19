@@ -102,7 +102,7 @@ function sendAvailableDeviceList(instructorID){
     }
     return total
   }, {})
-  clients[instructorID].sendUTF(JSON.stringify(json))
+  clients[instructorID]['connection'].sendUTF(JSON.stringify(json))
 }
 
 const typesDef = {
