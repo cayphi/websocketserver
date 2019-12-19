@@ -108,6 +108,7 @@ function processDeviceMessage(userID, dataFromClient){
 
     if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
       //this is an introduction from a device/car
+      console.log('current user id: ' + userID)
       clients[userID]['userName'] = dataFromClient.message.messageContent;
       console.log('server received an introduction from client ' + userID + ' : ' + dataFromClient.message.messageContent)
       //track client actions
@@ -115,7 +116,10 @@ function processDeviceMessage(userID, dataFromClient){
       userActivity.push(`${dataFromClient.message.messageContent} joined`);
 
       console.log('sending current clients details to client')
-      clients[userID]['connection'].sendUTF(JSON.stringify(clients));
+      clients[userID]['your name has been recorded in the server: '].sendUTF(JSON.stringify(clients.userID.userName));
+
+      console.log('users details: ' + JSON.stringify(users))
+
       //TODO: send updated available users list to all instructors
       //json.data = {users};
 
