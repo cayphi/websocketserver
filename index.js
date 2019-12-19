@@ -157,7 +157,8 @@ function processInstructorMessage(userID, dataFromClient){
     //users[userID] = dataFromClient;
     console.log('received an introduction from an instructor: ' + dataFromClient.message.messageContent)
     //TODO: send a list of available device to the instructor
-    //sendAvailableDeviceList(userID)
+    sendAvailableDeviceList(userID)
+    console.log('sent updated device list to the instructor')
 
     //track client actions
     users[userID] = dataFromClient;
