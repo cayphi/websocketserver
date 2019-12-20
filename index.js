@@ -196,7 +196,7 @@ function processInstructorMessage(userID, dataFromClient){
         deviceType : typesDef.SERVER,
         message : {
           messageType : typesDef.instructorID,
-          messageContent : datafromClient.message.messageContent
+          messageContent : dataFromClient.message.messageContent
         }
       }))
     } else {
