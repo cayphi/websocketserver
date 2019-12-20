@@ -39,6 +39,36 @@ const server = http.createServer(function(req, res){
     console.log("received device parameter: " + par.device);
     console.log("received status parameter: " + par.status);
 
+    console.log("sending command to all available cars: ");
+
+    if (par.command === 'stop') {
+      cmd = commandsDef.STOP;
+    }else if (par.command === 'turn' || par.command === 'go'){
+      if(par.status === 'right') {
+        cmd = commandsDef.RIGHT;
+      } else if (par.status === 'left'){
+        cmd = commandsDef.LEFT;
+      } else if (par.status === 'back') {
+        cmd = commandsDef.BACK;
+      } else if (par.status === 'straight') {
+        cmd = commandsDef.FORWARD;
+      }else {
+        cmd = ''
+      }
+    }
+
+    Object.keys(clients).map((client) => {
+      if (clients[client]['deviceType'] === typesDef.DEVICE) {
+        clients[client]['connection'].sendUTF(JSON.stringify({
+          deviceType : 'server',
+          message : {
+            messageType : 'instruction',
+            messageContent : cmd
+          }
+        }))
+      }
+    })
+
     res.on('error', (err) => {
       console.error(err);
     });
@@ -93,7 +123,8 @@ const sendMessage = (json) => {
   });
 }
 
-function processInstructorCommands(json) {
+function sendCommandToCar(json) {
+
 
 
 }
@@ -129,6 +160,13 @@ function sendAvailableDeviceList(){
 
 }
 
+const commandsDef = {
+  RIGHT : 'right',
+  LEFT : 'left',
+  FORWARD : 'forward',
+  BACK : 'back',
+  STOP : 'stop'
+}
 
 const typesDef = {
   INSTRUCTION: 'instruction',
