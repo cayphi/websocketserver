@@ -33,7 +33,7 @@ const server = http.createServer(function(req, res){
     console.log('received body: ' + body);
 
     const requestBody = JSON.parse(body);
-    const par = requestBody.result.parameters;
+    const par = requestBody.queryResult.parameters;
 
     console.log("received state parameter: " + par.state);
     console.log("received location parameter: " + par.location);
@@ -156,10 +156,10 @@ function processDeviceMessage(userID, dataFromClient){
       sendAvailableDeviceList();
 
 
-    } else if (dataFromClient.message.messageType === typesDef.FEEDBACK) {
-      //this is a feedback from a device/car
+    } else if (dataFromClient.message.messageType === typesDef.INSTRUCTION) {
+      //this is an instruction from an instructor
+      //TODO: send the instruction to the car
 
-      //TODO: send the feedback to the instructor
       userActivity.push(`${dataFromClient.username} sent an instruction`);
       json.data = { users, userActivity };
 
@@ -167,6 +167,18 @@ function processDeviceMessage(userID, dataFromClient){
       instParameters = dataFromClient.parameters;
       json.data = { instParameters, userActivity };
 
+    } else if (dataFromClient.message.messageType === typesDef.FEEDBACK) {
+      if (typeof(clients[dataFromClient.message.targetDeviceID]) != 'undefined') {
+        clients[dataFromClient.message.targetDeviceID]['connection'].sendUTF(JSON.stringify({
+          deviceType : typesDef.SERVER,
+          message : {
+            messageType : typesDef.instructorID,
+            messageContent : datafromClient.message.messageContent
+          }
+        }))
+      } else {
+        //TODO: send a failure feedback to the instructor
+      }
     }
 }
 
