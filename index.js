@@ -35,9 +35,9 @@ const server = http.createServer(function(req, res){
     const requestBody = JSON.parse(body);
     const par = requestBody.queryResult.parameters;
 
-    console.log("received state parameter: " + par.state);
-    console.log("received location parameter: " + par.location);
+    console.log("received command parameter: " + par.command);
     console.log("received device parameter: " + par.device);
+    console.log("received status parameter: " + par.status);
 
     res.on('error', (err) => {
       console.error(err);
