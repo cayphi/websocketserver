@@ -93,6 +93,11 @@ const sendMessage = (json) => {
   });
 }
 
+function processInstructorCommands(json) {
+
+
+}
+
 function sendAvailableDeviceList(instructorID){
   let json = {deviceType: typesDef.SERVER}
   json['message'] = {messageType : typesDef.INFORMATION}
@@ -156,29 +161,13 @@ function processDeviceMessage(userID, dataFromClient){
       sendAvailableDeviceList();
 
 
-    } else if (dataFromClient.message.messageType === typesDef.INSTRUCTION) {
+    } else if (dataFromClient.message.messageType === typesDef.FEEDBACK) {
       //this is an instruction from an instructor
       //TODO: send the instruction to the car
 
-      userActivity.push(`${dataFromClient.username} sent an instruction`);
-      json.data = { users, userActivity };
 
+    } else {
 
-      instParameters = dataFromClient.parameters;
-      json.data = { instParameters, userActivity };
-
-    } else if (dataFromClient.message.messageType === typesDef.FEEDBACK) {
-      if (typeof(clients[dataFromClient.message.targetDeviceID]) != 'undefined') {
-        clients[dataFromClient.message.targetDeviceID]['connection'].sendUTF(JSON.stringify({
-          deviceType : typesDef.SERVER,
-          message : {
-            messageType : typesDef.instructorID,
-            messageContent : datafromClient.message.messageContent
-          }
-        }))
-      } else {
-        //TODO: send a failure feedback to the instructor
-      }
     }
 }
 
@@ -198,8 +187,22 @@ function processInstructorMessage(userID, dataFromClient){
 
 
   } else if (dataFromClient.message.messageType === typesDef.INSTRUCTION) {
-            //this is an instruction from an instructor
-            //TODO: parse the instruction and send corresponding instruction to the car
+    //this is an instruction from an instructor
+    //TODO: parse the instruction and send corresponding instruction to the car
+    userActivity.push(`${userID} sent an instruction`);
+
+    if (typeof(clients[dataFromClient.message.targetDeviceID]) != 'undefined') {
+      clients[dataFromClient.message.targetDeviceID]['connection'].sendUTF(JSON.stringify({
+        deviceType : typesDef.SERVER,
+        message : {
+          messageType : typesDef.instructorID,
+          messageContent : datafromClient.message.messageContent
+        }
+      }))
+    } else {
+      //TODO: send a failure feedback to the instructor
+    }
+
   }
 
 }
