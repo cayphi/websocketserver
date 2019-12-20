@@ -195,7 +195,7 @@ function processInstructorMessage(userID, dataFromClient){
       clients[dataFromClient.message.targetDeviceID]['connection'].sendUTF(JSON.stringify({
         deviceType : typesDef.SERVER,
         message : {
-          messageType : typesDef.instructorID,
+          messageType : typesDef.INSTRUCTION,
           messageContent : dataFromClient.message.messageContent
         }
       }))
