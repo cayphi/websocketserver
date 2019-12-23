@@ -176,7 +176,9 @@ const typesDef = {
   DEVICE: 'device',
   SERVER: 'server',
   INFORMATION : 'information',
-  QUERY : 'query'
+  QUERY : 'query',
+  FOLLOWING_MODE : 'following',
+  STAYINGAWAY_MODE : 'stayingaway'  
 }
 
 //process a message sent by a car
