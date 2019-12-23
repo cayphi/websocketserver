@@ -3,16 +3,19 @@ console.log('Listening port: ' + webSocketsServerPort);
 
 const webSocketServer = require('websocket').server;
 const http = require('http');
-//const url = require('url');
 
 // Spinning the http server and the websocket server.
 const server = http.createServer(function(req, res){
 
-
 /*
+  const url = require('url');
   const q = url.parse(req.url, true).query;
   console.log('received url: ' + req.url);
 */
+
+  //get body from http requests
+  //grab the body by listening to stream's 'data' and 'end' events
+  //collect all chunk (data) and then concatunate them upon receiving 'end' event
   const { headers, method, url } = req;
   let body = [];
   req.on('error', (err) => {
@@ -21,15 +24,11 @@ const server = http.createServer(function(req, res){
     body.push(chunk);
   }).on('end', () => {
     body = Buffer.concat(body).toString();
-    // At this point, we have the headers, method, url and body, and can now
-    // do whatever we need to in order to respond to this request.
 
     console.log("received header: " + headers['Content-type'])
     console.log("received header: " + headers['user-agent'])
     console.log("received method: " + method)
     console.log("received url: " + url)
-
-    //console.log('received body: ' + body.toString());
     console.log('received body: ' + body);
 
     const requestBody = JSON.parse(body);
@@ -41,6 +40,7 @@ const server = http.createServer(function(req, res){
 
     console.log("sending command to all available cars: ");
 
+    //process parametes sent by Google Home
     if (par.command === 'stop') {
       cmd = commandsDef.STOP;
     }else if (par.command === 'turn' || par.command === 'go'){
@@ -57,6 +57,7 @@ const server = http.createServer(function(req, res){
       }
     }
 
+    //send corresponding instruction to ALL available esp8266
     Object.keys(clients).map((client) => {
       if (clients[client]['deviceType'] === typesDef.DEVICE) {
         clients[client]['connection'].sendUTF(JSON.stringify({
@@ -73,13 +74,14 @@ const server = http.createServer(function(req, res){
       console.error(err);
     });
 
+    //send feedback back to GoogleHome
+    //TODO: need to rewrite this according to DialogFlow requirement V2
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     // Note: the 2 lines above could be replaced with this next one:
     // response.writeHead(200, {'Content-Type': 'application/json'})
 
     const responseBody = { headers, method, url, body };
-
     res.write(JSON.stringify(responseBody));
     res.end();
     // Note: the 2 lines above could be replaced with this next one:
@@ -94,6 +96,7 @@ const server = http.createServer(function(req, res){
 
 });
 
+//websocket session
 server.listen(webSocketsServerPort);
 const wsServer = new webSocketServer({
   httpServer: server
@@ -105,16 +108,14 @@ const getUniqueID = () => {
   return s4() + s4() + '-' + s4();
 };
 
-// I'm maintaining all active connections in this object
+// store all active websocket connections in this object
 const clients = {};
-// I'm maintaining all active users in this object
+
+// store all active users in this object
 const users = {};
-// The current editor content is maintained here.
-let instParameters = {};
+
 // User activity history.
 let userActivity = [];
-
-
 
 const sendMessage = (json) => {
   // We are sending the current data to all connected clients
@@ -123,13 +124,9 @@ const sendMessage = (json) => {
   });
 }
 
-function sendCommandToCar(json) {
-
-
-
-}
-
+//send all the list of available cars to a particular instructor (instructorID)
 function sendAvailableDeviceList(instructorID){
+  //create an object containing all available cars
   let json = {deviceType: typesDef.SERVER}
   json['message'] = {messageType : typesDef.INFORMATION}
   json['message']['messageContent'] = Object.keys(clients).reduce((total, current) => {
@@ -138,10 +135,13 @@ function sendAvailableDeviceList(instructorID){
     }
     return total
   }, {})
+  //send the object to the instructor
   clients[instructorID]['connection'].sendUTF(JSON.stringify(json))
 }
 
+//send a list of all available car list to all available instructors
 function sendAvailableDeviceList(){
+  //create an object containing all available cars
   let json = {deviceType: typesDef.SERVER}
   json['message'] = {messageType : typesDef.INFORMATION}
   json['message']['messageContent'] = Object.keys(clients).reduce((total, current) => {
@@ -179,56 +179,59 @@ const typesDef = {
   QUERY : 'query'
 }
 
+//process a message sent by a car
 function processDeviceMessage(userID, dataFromClient){
 
     if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
-      //this is an introduction from a device/car
+      //this is an introduction from a car
       console.log('current user id: ' + userID)
       clients[userID]['userName'] = dataFromClient.message.messageContent;
       console.log('server received an introduction from client ' + userID + ' : ' + dataFromClient.message.messageContent)
-      //track client actions
+
+      //track car actions for later customization
       users[userID] = dataFromClient;
       userActivity.push(`${dataFromClient.message.messageContent} joined`);
 
       console.log('sending current clients details to client')
-      clients[userID]['connection'].sendUTF('your name has been recorded on the server: ' + clients[userID].userName);
+      clients[userID]['connection'].sendUTF('Welcome! Your name has been recorded on the server: ' + clients[userID].userName);
 
       console.log('current users details at server: ' + JSON.stringify(users))
 
-      //TODO: send updated available users list to all instructors
+      //send updated available cars list to all instructors
       sendAvailableDeviceList();
 
-
     } else if (dataFromClient.message.messageType === typesDef.FEEDBACK) {
-      //this is an instruction from an instructor
-      //TODO: send the instruction to the car
-
+      //this is a feedback from the car to update its status
+      //TODO: send corresponding message to the relative instructor/GoogleHome
 
     } else {
+      //TODO: any other type of message will be implemented here
 
     }
 }
 
-
+//process a message from an instructor
 function processInstructorMessage(userID, dataFromClient){
   if (dataFromClient.message.messageType === typesDef.INTRODUCTION) {
     //this is an introduction from an instructor
-    //users[userID] = dataFromClient;
     console.log('received an introduction from an instructor: ' + dataFromClient.message.messageContent)
-    //TODO: send a list of available device to the instructor
+
+    //send a list of available device to the instructor
     sendAvailableDeviceList(userID)
     console.log('sent updated device list to the instructor')
 
-    //track client actions
+    //track instructors' actions for later customization
     users[userID] = dataFromClient;
     userActivity.push(`${dataFromClient.message.messageContent} joined`);
 
 
   } else if (dataFromClient.message.messageType === typesDef.INSTRUCTION) {
     //this is an instruction from an instructor
-    //TODO: parse the instruction and send corresponding instruction to the car
+
+    //track action for later customization
     userActivity.push(`${userID} sent an instruction`);
 
+    //TODO: parse the instruction and send corresponding instruction to the car
     if (typeof(clients[dataFromClient.message.targetDeviceID]) != 'undefined') {
       clients[dataFromClient.message.targetDeviceID]['connection'].sendUTF(JSON.stringify({
         deviceType : typesDef.SERVER,
@@ -245,6 +248,8 @@ function processInstructorMessage(userID, dataFromClient){
 
 }
 
+
+//process websocket connection initiation
 wsServer.on('request', function(request) {
   var userID = getUniqueID();
   console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
@@ -279,6 +284,7 @@ wsServer.on('request', function(request) {
   }))
   */
 
+  //process websocket messages
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
       console.log('data: ' + message.utf8Data);
@@ -300,29 +306,27 @@ wsServer.on('request', function(request) {
     }
   });
 
-  // user disconnected
+  // car disconnected
   connection.on('close', function(reasonCode, description) {
-    console.log((new Date()) + " Peer " + userID + " disconnected.");
+
+
+    //track the action for later customization
+    userActivity.push(`${users[userID].userName} left`);
+
     //TODO: send updated available device list to all instructors
     if (clients[userID]['deviceType'] === typesDef.DEVICE ) {
       delete clients[userID];
       delete users[userID];
+      console.log((new Date()) + userID + ": ");
       console.log ('a car has been disconnected, remaining conneciton list: ' + Object.getOwnPropertyNames(clients))
       sendAvailableDeviceList();
 
     } else if (clients[userID]['deviceType'] === typesDef.INSTRUCTOR){
       delete clients[userID];
       delete users[userID];
+      console.log((new Date()) + userID + ": ");
       console.log ('an instructor has been disconnected, remaining conneciton list: ' + Object.getOwnPropertyNames(clients))
     }
 
-    /*
-    const json = { type: typesDef.USER_EVENT };
-    userActivity.push(`${users[userID].username} left the document`);
-    json.data = { users, userActivity };
-    delete clients[userID];
-    delete users[userID];
-    sendMessage(JSON.stringify(json));
-    */
   });
 });
